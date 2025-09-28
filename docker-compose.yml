@@ -1,0 +1,39 @@
+services:
+  postgres_db:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    container_name: postgres
+    volumes:
+      - volume_db:/var/lib/postgresql/data
+    ports:
+      - '5433:5432'
+
+  nestjs_api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nest_api
+    ports:
+      - 3000:3000
+    depends_on:
+      - postgres_db
+    volumes:
+      - ./src:/app/src:z
+      - /app/node_modules
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    container_name: pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=pgadmin4
+    ports:
+      - '5050:80'
+    depends_on:
+      - postgres_db
+
+volumes:
+  volume_db:
